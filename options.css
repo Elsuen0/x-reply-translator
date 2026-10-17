@@ -32,6 +32,8 @@ label {
   margin: 14px 0 6px;
 }
 
+[hidden] { display: none !important; }
+
 input, select {
   width: 100%;
   padding: 9px 10px;

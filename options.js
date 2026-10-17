@@ -1,6 +1,15 @@
 const { UI_LANG, LANGUAGES, t, languageLabel } = self.XRT;
 
-const DEFAULTS = { apiKey: "", model: "claude-haiku-5-5", tone: "casual", targetLang: "en", learn: true };
+const DEFAULTS = {
+  provider: "anthropic",
+  apiKey: "",
+  model: "claude-haiku-5-5",
+  openaiKey: "",
+  openaiModel: "gpt-4o-mini",
+  tone: "casual",
+  targetLang: "en",
+  learn: true,
+};
 
 const $ = (id) => document.getElementById(id);
 
@@ -26,26 +35,42 @@ function applyTexts() {
 
 // ---------- Settings ----------
 
+// Show only the fields of the selected provider
+function showProviderFields() {
+  const openai = $("provider").value === "openai";
+  $("anthropicFields").hidden = openai;
+  $("openaiFields").hidden = !openai;
+}
+
 async function load() {
   const s = await chrome.storage.local.get(DEFAULTS);
+  $("provider").value = s.provider;
   $("apiKey").value = s.apiKey;
-  $("targetLang").value = s.targetLang;
   $("model").value = s.model;
+  $("openaiKey").value = s.openaiKey;
+  $("openaiModel").value = s.openaiModel;
+  $("targetLang").value = s.targetLang;
   $("tone").value = s.tone;
   $("learn").checked = s.learn;
+  showProviderFields();
 }
 
 async function save() {
+  const provider = $("provider").value;
   const apiKey = $("apiKey").value.trim();
+  const openaiKey = $("openaiKey").value.trim();
   await chrome.storage.local.set({
+    provider,
     apiKey,
-    targetLang: $("targetLang").value,
     model: $("model").value,
+    openaiKey,
+    openaiModel: $("openaiModel").value.trim() || DEFAULTS.openaiModel,
+    targetLang: $("targetLang").value,
     tone: $("tone").value,
     learn: $("learn").checked,
   });
   const status = $("status");
-  status.textContent = apiKey ? t("saved") : t("savedNoKey");
+  status.textContent = (provider === "openai" ? openaiKey : apiKey) ? t("saved") : t("savedNoKey");
   setTimeout(() => (status.textContent = ""), 2000);
 }
 
@@ -116,6 +141,7 @@ async function clearHistory() {
 // ---------- Init ----------
 
 applyTexts();
+$("provider").addEventListener("change", showProviderFields);
 $("save").addEventListener("click", save);
 $("export").addEventListener("click", exportHistory);
 $("clear").addEventListener("click", clearHistory);

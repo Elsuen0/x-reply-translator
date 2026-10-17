@@ -11,19 +11,44 @@
     <h1>X Reply Translator</h1>
     <p class="sub" data-i18n-html="subtitle"></p>
 
-    <label for="apiKey" data-i18n="apiKey"></label>
-    <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
-    <p class="help" data-i18n-html="apiKeyHelp"></p>
+    <label for="provider" data-i18n="provider"></label>
+    <select id="provider">
+      <option value="anthropic" data-i18n="providerClaude"></option>
+      <option value="openai" data-i18n="providerOpenAI"></option>
+    </select>
+    <p class="help" data-i18n="providerHelp"></p>
+
+    <div id="anthropicFields">
+      <label for="apiKey" data-i18n="apiKey"></label>
+      <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+      <p class="help" data-i18n-html="apiKeyHelp"></p>
+
+      <label for="model" data-i18n="model"></label>
+      <select id="model">
+        <option value="claude-haiku-5-5" data-i18n="modelHaiku"></option>
+        <option value="claude-sonnet-5-5" data-i18n="modelSonnet"></option>
+      </select>
+    </div>
+
+    <div id="openaiFields" hidden>
+      <label for="openaiKey" data-i18n="openaiKey"></label>
+      <input id="openaiKey" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+      <p class="help" data-i18n-html="openaiKeyHelp"></p>
+
+      <label for="openaiModel" data-i18n="openaiModel"></label>
+      <input id="openaiModel" type="text" list="openaiModels" autocomplete="off" spellcheck="false">
+      <datalist id="openaiModels">
+        <option value="gpt-4o-mini"></option>
+        <option value="gpt-4.1-nano"></option>
+        <option value="gpt-5-nano"></option>
+        <option value="gpt-5-mini"></option>
+      </datalist>
+      <p class="help" data-i18n="openaiModelHelp"></p>
+    </div>
 
     <label for="targetLang" data-i18n="targetLang"></label>
     <select id="targetLang"></select>
     <p class="help" data-i18n="targetLangHelp"></p>
-
-    <label for="model" data-i18n="model"></label>
-    <select id="model">
-      <option value="claude-haiku-5-5" data-i18n="modelHaiku"></option>
-      <option value="claude-sonnet-5-5" data-i18n="modelSonnet"></option>
-    </select>
 
     <label for="tone" data-i18n="tone"></label>
     <select id="tone">

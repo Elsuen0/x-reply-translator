@@ -4,8 +4,11 @@ importScripts("i18n.js");
 const { t, language } = self.XRT;
 
 const DEFAULTS = {
-  apiKey: "",
+  provider: "anthropic", // "anthropic" | "openai"
+  apiKey: "",            // Claude API key
   model: "claude-haiku-5-5",
+  openaiKey: "",
+  openaiModel: "gpt-4o-mini",
   tone: "casual",
   targetLang: "en",
   learn: true, // use your past replies as style examples
@@ -114,12 +117,18 @@ class TranslateError extends Error {
   }
 }
 
-async function translate({ text, context }) {
-  const settings = await chrome.storage.local.get(DEFAULTS);
-  if (!settings.apiKey) throw new TranslateError(t("errNoKey"), "no_key");
+// Each provider: send the request, return the translated text. Errors become TranslateError.
 
-  const examples = settings.learn ? pickExamples(await getHistory(), settings.targetLang) : [];
+async function parseOrThrow(res) {
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const detail = data?.error?.message || `HTTP ${res.status}`;
+    throw new TranslateError(t("errApi", { detail }), res.status === 401 ? "no_key" : "api");
+  }
+  return data;
+}
 
+async function callAnthropic(settings, system, user) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -131,22 +140,49 @@ async function translate({ text, context }) {
     body: JSON.stringify({
       model: settings.model,
       max_tokens: 600,
-      system: buildSystemPrompt(settings.tone, settings.targetLang, examples),
-      messages: [{ role: "user", content: buildUserMessage(text, context) }],
+      system,
+      messages: [{ role: "user", content: user }],
     }),
   });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const detail = data?.error?.message || `HTTP ${res.status}`;
-    throw new TranslateError(t("errApi", { detail }), res.status === 401 ? "no_key" : "api");
-  }
-
-  const out = (data.content || [])
+  const data = await parseOrThrow(res);
+  return (data.content || [])
     .filter((b) => b.type === "text")
     .map((b) => b.text)
     .join("")
     .trim();
+}
+
+async function callOpenAI(settings, system, user) {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${settings.openaiKey}`,
+    },
+    body: JSON.stringify({
+      model: settings.openaiModel,
+      // Larger budget: reasoning models spend part of it before writing the answer
+      max_completion_tokens: 1500,
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+    }),
+  });
+  const data = await parseOrThrow(res);
+  return String(data.choices?.[0]?.message?.content ?? "").trim();
+}
+
+async function translate({ text, context }) {
+  const settings = await chrome.storage.local.get(DEFAULTS);
+  const useOpenAI = settings.provider === "openai";
+  if (!(useOpenAI ? settings.openaiKey : settings.apiKey)) throw new TranslateError(t("errNoKey"), "no_key");
+
+  const examples = settings.learn ? pickExamples(await getHistory(), settings.targetLang) : [];
+  const system = buildSystemPrompt(settings.tone, settings.targetLang, examples);
+  const user = buildUserMessage(text, context);
+
+  const out = useOpenAI ? await callOpenAI(settings, system, user) : await callAnthropic(settings, system, user);
 
   if (!out) throw new TranslateError(t("errEmptyResponse"), "api");
   return { translation: out, examplesUsed: examples.length, target: settings.targetLang };
