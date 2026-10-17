@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "X Reply Translator",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Write your X replies in your own language, get a natural translation in your style with one shortcut (Alt+T).",
   "permissions": ["storage"],
   "host_permissions": ["https://api.anthropic.com/*", "https://api.openai.com/*"],

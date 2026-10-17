@@ -115,7 +115,7 @@
 
   // ---------- Helpers éditeur ----------
   function getEditorText(editor) {
-    return (editor.innerText || "").replace(/\u200B/g, "").trim();
+    return (editor.innerText || "").replace(/​/g, "").trim();
   }
 
   function getContextFor(editor) {
@@ -135,7 +135,7 @@
   // pas ce qui est affiché. Il faut donc passer par un collage que Draft.js traite lui-même,
   // sinon l'affichage et l'état divergent (texte en double, français publié en douce).
 
-  const norm = (s) => s.replace(/\u200B/g, "").replace(/\s+/g, " ").trim();
+  const norm = (s) => s.replace(/​/g, "").replace(/\s+/g, " ").trim();
   const tick = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // Sélectionne tout le texte en posant la sélection sur les nœuds texte eux-mêmes,
@@ -167,25 +167,29 @@
     editor.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
   }
 
-  // Renvoie true si le champ contient exactement la traduction, false sinon (jamais de double collage)
+  // Attend (max `ms`) que le champ affiche exactement `target`. X peut mettre longtemps à redessiner
+  // un champ chargé (long texte, lien, plusieurs paragraphes) : on ne conclut jamais trop tôt.
+  async function waitForText(editor, target, ms) {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      if (norm(getEditorText(editor)) === target) return true;
+      await tick(50);
+    }
+    return norm(getEditorText(editor)) === target;
+  }
+
+  // Renvoie true si le champ contient exactement la traduction, false sinon.
+  // Chaque tentative remplace TOUT le contenu (sélection de tout puis collage) et se vérifie avant
+  // de passer à la suivante : si X était trop lent à enregistrer la sélection, on recommence
+  // proprement au lieu de laisser du texte en double.
   async function replaceEditorText(editor, text) {
     const target = norm(text);
-    const before = norm(getEditorText(editor));
-
-    editor.focus();
-    selectAllIn(editor);
-    await tick(40); // laisser Draft.js enregistrer la sélection
-    pasteInto(editor, text);
-    await tick(40);
-    if (norm(getEditorText(editor)) === target) return true;
-
-    // Seulement si le collage a été complètement ignoré (rien n'a bougé) : une autre tentative
-    if (norm(getEditorText(editor)) === before) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      editor.focus();
       selectAllIn(editor);
-      await tick(40);
-      document.execCommand("insertText", false, text);
-      await tick(40);
-      if (norm(getEditorText(editor)) === target) return true;
+      await tick(attempt === 0 ? 250 : 500); // laisser Draft.js enregistrer la sélection
+      pasteInto(editor, text);
+      if (await waitForText(editor, target, 1500)) return true;
     }
     return false;
   }
