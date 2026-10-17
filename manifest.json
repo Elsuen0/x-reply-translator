@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "X Reply Translator",
+  "version": "0.3.0",
+  "description": "Write your X replies in your own language, get a natural translation in your style with one shortcut (Alt+T).",
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.anthropic.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["i18n.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_title": "X Reply Translator — settings",
+    "default_popup": "options.html"
+  }
+}

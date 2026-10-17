@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>X Reply Translator</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <h1>X Reply Translator</h1>
+    <p class="sub" data-i18n-html="subtitle"></p>
+
+    <label for="apiKey" data-i18n="apiKey"></label>
+    <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+    <p class="help" data-i18n-html="apiKeyHelp"></p>
+
+    <label for="targetLang" data-i18n="targetLang"></label>
+    <select id="targetLang"></select>
+    <p class="help" data-i18n="targetLangHelp"></p>
+
+    <label for="model" data-i18n="model"></label>
+    <select id="model">
+      <option value="claude-haiku-5-5" data-i18n="modelHaiku"></option>
+      <option value="claude-sonnet-5-5" data-i18n="modelSonnet"></option>
+    </select>
+
+    <label for="tone" data-i18n="tone"></label>
+    <select id="tone">
+      <option value="casual" data-i18n="toneCasual"></option>
+      <option value="neutral" data-i18n="toneNeutral"></option>
+      <option value="pro" data-i18n="tonePro"></option>
+    </select>
+
+    <label class="check">
+      <input id="learn" type="checkbox" checked>
+      <span data-i18n="learn"></span>
+    </label>
+    <p class="help" data-i18n="learnHelp"></p>
+
+    <div class="row">
+      <button id="save" data-i18n="save"></button>
+      <span id="status" role="status"></span>
+    </div>
+
+    <section class="history">
+      <h2 data-i18n="historyTitle"></h2>
+      <p id="stats" class="stats"></p>
+      <ul id="recent" class="recent"></ul>
+      <div class="row">
+        <button id="export" class="ghost" data-i18n="export"></button>
+        <button id="clear" class="ghost danger" data-i18n="clear"></button>
+      </div>
+    </section>
+  </main>
+  <script src="i18n.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
