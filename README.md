@@ -4,7 +4,7 @@ Write your X replies in your own language. Press **Alt+T** and get a natural tra
 
 The more you use it, the more it writes like you: every time you edit a translation before posting, it learns from your edits.
 
-> Beta build, shared privately for testing. Please don't redistribute it.
+> Beta: built in public, feedback welcome. Source is readable so you can check that your API key only ever goes to Anthropic's API. All rights reserved, see `LICENSE`.
 
 ---
 
@@ -12,10 +12,10 @@ The more you use it, the more it writes like you: every time you edit a translat
 
 Works in Chrome and any Chromium browser (Opera, Edge, Brave), on desktop.
 
-1. Unzip the file. You get a folder called `x-reply-translator`. Keep it somewhere it won't be deleted: the browser loads the extension from it.
+1. On this page, click the green **Code** button → **Download ZIP**, then unzip it. You get a folder (`x-reply-translator-main`). Keep it somewhere it won't be deleted: the browser loads the extension from it.
 2. Go to `chrome://extensions` (Opera: `opera://extensions`, Edge: `edge://extensions`).
 3. Turn on **Developer mode** (top right).
-4. Click **Load unpacked** and select the `x-reply-translator` folder.
+4. Click **Load unpacked** and select the unzipped folder (the one that directly contains `manifest.json`).
 5. Pin the extension to your toolbar (puzzle icon → pin).
 
 The browser may warn you about developer-mode extensions: that's normal for anything not installed from the Web Store.
@@ -58,6 +58,8 @@ So **edit freely** when something doesn't sound like you: that's what makes it b
 - How often do you edit the translation before posting, and what do you change?
 - Anything confusing during install or setup?
 - Did anything break (wrong text in the box, button in a weird place, errors)?
+
+Send it to me on X ([@lucascprt_dev](https://x.com/lucascprt_dev)) or [open an issue](../../issues).
 
 ## Known limitations
 
