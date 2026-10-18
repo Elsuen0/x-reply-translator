@@ -10,6 +10,7 @@ const DEFAULTS = {
   openaiKey: "",
   openaiModel: "gpt-4o-mini",
   tone: "casual",
+  mode: "faithful", // "faithful" = close translation | "natural" = rewrite like a native would
   targetLang: "en",
   learn: true, // use your past replies as style examples
 };
@@ -64,20 +65,35 @@ const clip = (s, n) => (s.length > n ? s.slice(0, n) + "…" : s);
 
 // ---------- Prompt ----------
 
-function buildSystemPrompt(tone, targetLang, examples) {
+function buildSystemPrompt(tone, targetLang, examples, mode) {
   const target = language(targetLang).name;
-  const lines = [
-    `You translate replies written for X (Twitter) into natural, native-sounding ${target}.`,
-    "The draft can be in any language: detect it yourself.",
-    `Tone: ${TONES[tone] || TONES.casual}.`,
-    "Rules:",
-    "- Keep the author's meaning, intent and opinion. Do not add new ideas, facts, or arguments.",
-    "- Keep roughly the same length. Stay concise: it's an X reply.",
-    "- Keep @mentions, URLs, numbers, emojis and hashtags exactly as written. Don't add emojis or hashtags.",
-    `- If the draft is already in ${target}, don't translate it: just polish it so it sounds natural.`,
-    "- Use the original post only as context to pick the right words; never answer it yourself.",
-    `- Output ONLY the final ${target} reply text. No quotes, no notes, no explanations.`,
-  ];
+  const natural = mode === "natural";
+  const lines = natural
+    ? [
+        `You rewrite replies drafted for X (Twitter) as a native ${target} speaker would naturally write them.`,
+        "The draft can be in any language: detect it yourself.",
+        `Tone: ${TONES[tone] || TONES.casual}.`,
+        "Rules:",
+        "- Say the same thing, but do NOT translate word for word or sentence by sentence. Rewrite it the way a native speaker would put it on X: restructure, merge or split sentences, swap literal expressions for the ones natives actually use, drop filler.",
+        "- Keep the author's meaning, intent, opinion and every fact. Do not add new ideas, facts, claims or experiences.",
+        "- Stay concise: it's an X reply, 280 characters max. Shorter than the draft is fine, but never lose a point the author made.",
+        "- Keep @mentions, URLs, numbers, emojis and hashtags exactly as written. Don't add emojis or hashtags.",
+        `- If the draft is already in ${target}, don't translate it: rewrite it so it sounds natural.`,
+        "- Use the original post only as context to pick the right words; never answer it yourself.",
+        `- Output ONLY the final ${target} reply text. No quotes, no notes, no explanations.`,
+      ]
+    : [
+        `You translate replies written for X (Twitter) into natural, native-sounding ${target}.`,
+        "The draft can be in any language: detect it yourself.",
+        `Tone: ${TONES[tone] || TONES.casual}.`,
+        "Rules:",
+        "- Keep the author's meaning, intent and opinion. Do not add new ideas, facts, or arguments.",
+        "- Keep roughly the same length. Stay concise: it's an X reply.",
+        "- Keep @mentions, URLs, numbers, emojis and hashtags exactly as written. Don't add emojis or hashtags.",
+        `- If the draft is already in ${target}, don't translate it: just polish it so it sounds natural.`,
+        "- Use the original post only as context to pick the right words; never answer it yourself.",
+        `- Output ONLY the final ${target} reply text. No quotes, no notes, no explanations.`,
+      ];
 
   if (examples.length) {
     lines.push(
@@ -179,7 +195,7 @@ async function translate({ text, context }) {
   if (!(useOpenAI ? settings.openaiKey : settings.apiKey)) throw new TranslateError(t("errNoKey"), "no_key");
 
   const examples = settings.learn ? pickExamples(await getHistory(), settings.targetLang) : [];
-  const system = buildSystemPrompt(settings.tone, settings.targetLang, examples);
+  const system = buildSystemPrompt(settings.tone, settings.targetLang, examples, settings.mode);
   const user = buildUserMessage(text, context);
 
   const out = useOpenAI ? await callOpenAI(settings, system, user) : await callAnthropic(settings, system, user);

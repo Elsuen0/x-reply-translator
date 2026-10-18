@@ -7,6 +7,7 @@ const DEFAULTS = {
   openaiKey: "",
   openaiModel: "gpt-4o-mini",
   tone: "casual",
+  mode: "faithful",
   targetLang: "en",
   learn: true,
 };
@@ -53,6 +54,7 @@ async function load() {
   $("openaiModel").value = s.openaiModel;
   $("targetLang").value = s.targetLang;
   $("tone").value = s.tone;
+  $("mode").value = s.mode;
   $("learn").checked = s.learn;
   showProviderFields();
 }
@@ -69,6 +71,7 @@ async function save() {
     openaiModel: $("openaiModel").value.trim() || DEFAULTS.openaiModel,
     targetLang: $("targetLang").value,
     tone: $("tone").value,
+    mode: $("mode").value,
     learn: $("learn").checked,
   });
   const status = $("status");

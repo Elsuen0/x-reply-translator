@@ -1,4 +1,4 @@
-# X Reply Translator — beta (v0.5)
+# X Reply Translator — beta (v0.6)
 
 Write your X replies in your own language. Press **Alt+T** and get a natural translation that sounds like you, ready to post.
 
@@ -40,6 +40,8 @@ Tip: set a low monthly spend limit in the console for peace of mind.
 4. Read the translation. You can edit it right in the panel.
 5. **Enter** or **Replace** puts it in the reply box. **Regenerate** gives another version. **Esc** closes.
 6. Review and post yourself. The extension never posts anything for you.
+
+**Translation style** (settings): *Faithful* keeps your structure and just makes it sound native. *Natural rewrite* says the same thing the way a native would write it, and may restructure or tighten your sentences.
 
 ## 4. How it learns your style
 
