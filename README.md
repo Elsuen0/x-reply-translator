@@ -1,4 +1,4 @@
-# X Reply Translator — beta (v0.4)
+# X Reply Translator — beta (v0.5)
 
 Write your X replies in your own language. Press **Alt+T** and get a natural translation that sounds like you, ready to post.
 
@@ -45,7 +45,7 @@ Tip: set a low monthly spend limit in the console for peace of mind.
 
 Each time you keep a translation (Replace or Copy), the extension saves locally: your draft, the suggested translation and the version you actually kept or posted. On the next translations, your latest versions (edited ones first) are sent to your chosen AI provider as style examples.
 
-So **edit freely** when something doesn't sound like you: that's what makes it better. You can turn learning off, see your history, export it or clear it in the settings.
+So **edit freely** when something doesn't sound like you: that's what makes it better. You can turn learning off, see your history, export it, import it on another computer, or clear it in the settings.
 
 ## 5. Privacy
 

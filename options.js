@@ -11,6 +11,8 @@ const DEFAULTS = {
   learn: true,
 };
 
+const HISTORY_MAX = 500;
+
 const $ = (id) => document.getElementById(id);
 
 // ---------- Texts ----------
@@ -132,6 +134,48 @@ async function exportHistory() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// Keep only the fields we know, as plain strings/numbers, so a hand-edited or foreign file can't inject junk
+function cleanEntry(e) {
+  if (!e || typeof e !== "object") return null;
+  const str = (v) => (typeof v === "string" ? v : "");
+  const src = str(e.src) || str(e.fr);
+  const final = str(e.final);
+  if (!e.id || typeof e.id !== "string" || !src || !final) return null;
+  const out = {
+    id: e.id,
+    ts: Number.isFinite(e.ts) ? e.ts : Date.now(),
+    src,
+    target: str(e.target) || "en",
+    context: str(e.context).slice(0, 280),
+    ai: str(e.ai) || final,
+    final,
+    edited: !!e.edited,
+  };
+  if (e.posted) out.posted = true;
+  if (e.action === "copy" || e.action === "replace") out.action = e.action;
+  if (Number.isFinite(e.regenerated)) out.regenerated = e.regenerated;
+  return out;
+}
+
+async function importHistory(file) {
+  const msg = $("historyMsg");
+  try {
+    const data = JSON.parse(await file.text());
+    if (!Array.isArray(data)) throw new Error("not an array");
+    const incoming = data.map(cleanEntry).filter(Boolean);
+    if (!incoming.length) throw new Error("no valid entries");
+    const current = await getHistory();
+    const known = new Set(current.map((e) => e.id));
+    const fresh = incoming.filter((e) => !known.has(e.id));
+    const merged = [...current, ...fresh].sort((a, b) => (a.ts || 0) - (b.ts || 0)).slice(-HISTORY_MAX);
+    await chrome.storage.local.set({ history: merged });
+    msg.textContent = fresh.length ? t("importDone", { n: fresh.length }) : t("importNothing");
+  } catch (_) {
+    msg.textContent = t("importError");
+  }
+  setTimeout(() => (msg.textContent = ""), 5000);
+}
+
 async function clearHistory() {
   if (!confirm(t("clearConfirm"))) return;
   await chrome.storage.local.remove("history");
@@ -144,6 +188,12 @@ applyTexts();
 $("provider").addEventListener("change", showProviderFields);
 $("save").addEventListener("click", save);
 $("export").addEventListener("click", exportHistory);
+$("import").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  e.target.value = ""; // allows picking the same file again
+  if (file) importHistory(file);
+});
 $("clear").addEventListener("click", clearHistory);
 
 chrome.storage.onChanged.addListener((changes, area) => {

@@ -71,9 +71,12 @@
     <section class="history">
       <h2 data-i18n="historyTitle"></h2>
       <p id="stats" class="stats"></p>
+      <p id="historyMsg" class="help" role="status"></p>
       <ul id="recent" class="recent"></ul>
       <div class="row">
         <button id="export" class="ghost" data-i18n="export"></button>
+        <button id="import" class="ghost" data-i18n="import"></button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
         <button id="clear" class="ghost danger" data-i18n="clear"></button>
       </div>
     </section>
