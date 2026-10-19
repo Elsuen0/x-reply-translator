@@ -1,4 +1,4 @@
-# X Reply Translator — beta (v0.6)
+# X Reply Translator — beta (v0.6.1)
 
 Write your X replies in your own language. Press **Alt+T** and get a natural translation that sounds like you, ready to post.
 

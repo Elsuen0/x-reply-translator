@@ -68,6 +68,11 @@ const clip = (s, n) => (s.length > n ? s.slice(0, n) + "…" : s);
 function buildSystemPrompt(tone, targetLang, examples, mode) {
   const target = language(targetLang).name;
   const natural = mode === "natural";
+  // The author writes French, where ! ? : ; take a space before. Other languages don't (except French itself).
+  const spacingRule =
+    targetLang === "fr"
+      ? null
+      : `- Punctuation: follow ${target} typography. No space before ! ? : ; (write "really?" not "really ?"). This applies even if the drafts or the examples below put a space there.`;
   const lines = natural
     ? [
         `You rewrite replies drafted for X (Twitter) as a native ${target} speaker would naturally write them.`,
@@ -95,11 +100,13 @@ function buildSystemPrompt(tone, targetLang, examples, mode) {
         `- Output ONLY the final ${target} reply text. No quotes, no notes, no explanations.`,
       ];
 
+  if (spacingRule) lines.splice(lines.length - 1, 0, spacingRule); // keep "Output ONLY" as the last rule
+
   if (examples.length) {
     lines.push(
       "",
       `Below are past replies from the same author: their draft and the ${target} version they actually kept, often after editing it themselves.`,
-      "The kept versions are the author's real voice. Match their word choice, phrasing habits, punctuation and level of casualness.",
+      "The kept versions are the author's real voice. Match their word choice, phrasing habits and level of casualness (but follow the punctuation-spacing rule above).",
       "Use them for style only: never reuse their content.",
       "<style_examples>"
     );
